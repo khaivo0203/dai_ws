@@ -1,0 +1,257 @@
+define
+
+#entity
+
+current_mission sub entity,
+    owns database_name,
+    owns temp_name,
+    owns mission_id @key,
+    owns mission_start,
+    owns mission_end,
+    owns agent_id,
+    owns status,
+    owns current_role,
+    plays realisation:realises;
+    # plays participation:has_partipant;
+
+team_leader sub entity,
+    owns name,
+    owns id @key,
+    plays exchange:exchange_to,
+    plays part:part_of;
+
+emergency_response_team_ERT sub entity,
+    owns id @key,
+    plays part:has_part,
+    plays location:has_located;
+
+subteam sub entity,
+    owns id @key,
+    owns name,
+    plays part:part_of,
+    plays part:has_part;
+
+
+mission_roles sub entity,
+    owns name,
+    plays part:has_part;
+
+agent_role sub entity,
+    owns name,
+    # owns required_info,
+    plays part:part_of,
+    plays function:has_function,
+    plays role:role_of;
+
+
+agent sub entity,
+    owns name,
+    owns id @key,
+    plays part:part_of,
+    plays role:has_role,
+    plays realisation:realised_in,
+    plays participation:participate_in,
+    plays process:contains_process,
+    plays info_collection:has_found,
+    plays exchange:exchange_to;
+
+task sub entity,
+    owns name,
+    owns seq,
+    owns required_info,
+    # owns id @key,
+    plays function:function_of;
+
+
+event sub entity,
+    owns name,
+    plays location:has_located,
+    plays participation:has_partipant,
+    plays process:occurs_in;
+
+situation sub entity,    #added on 21 March
+    owns name,
+    owns id @key,
+    #plays location:has_located,
+    plays exchange:exchange_info,
+    plays participation:has_partipant,
+    plays process:contains_process;
+
+
+place sub entity,
+    owns name,
+    owns position, 
+    owns orientation,
+    owns wp_id,
+    owns feature,
+    plays part:part_of,
+    plays process:occurs_in,
+    plays location:located_in;
+
+
+operation_area sub entity,
+    owns name,
+    plays part:has_part,
+    plays location:located_in;
+
+
+objInt sub entity,
+    owns name,
+    owns id @key,
+    owns agent_position, 
+    owns agent_orientation,
+    owns obj_position, 
+    owns obj_orientation,
+    # owns timestamp,
+    # owns captured_time,
+    plays participation:participate_in,
+    plays location:has_located,
+    plays characteristic:has_characteristic,
+    plays info_collection:found_by,
+    plays exchange:exchange_info;
+
+
+obj_attribute sub entity,
+    owns name,
+    owns id @key,
+    plays concretization:concretizes,
+    plays characteristic:characteristic_of;
+
+
+attribute_value sub entity,
+    owns id @key,
+    owns name,
+    plays concretization:is_concretized_as;
+
+
+
+#relation
+
+part sub relation, 
+    owns timestamp,
+    relates part_of,
+    relates has_part;
+
+participation sub relation, 
+    owns timestamp,
+    relates participate_in,
+    relates has_partipant;
+
+process sub relation, 
+    owns timestamp,
+    relates contains_process,
+    relates occurs_in;
+
+function sub relation, 
+    owns timestamp,
+    relates has_function,
+    relates function_of;
+
+location sub relation, 
+    owns timestamp,
+    relates has_located,
+    relates located_in; 
+
+characteristic sub relation,
+    owns timestamp,
+    relates has_characteristic,
+    relates characteristic_of; 
+
+realisation sub relation, 
+    owns timestamp,
+    relates realised_in,
+    relates realises;
+
+info_collection sub relation,
+    owns timestamp,
+    owns captured_time,
+    owns received_time,
+    relates has_found,
+    relates found_by;
+
+exchange sub relation,
+    owns timestamp,
+    owns sent_time,
+    owns status,
+    owns num_attempt,
+    relates exchange_info,
+    relates exchange_to;
+
+role sub relation,
+    owns timestamp,
+    owns status,
+    owns assigned_task,
+    relates has_role,
+    relates role_of;
+
+concretization sub relation,
+    owns timestamp,
+    relates concretizes,
+    relates is_concretized_as;
+
+# attribute
+
+name sub attribute,
+    value string;
+timestamp sub attribute,
+    value datetime;
+required_info sub attribute,
+    value string;
+
+id sub attribute,
+    value string;
+# pose sub attribute,
+#     value string;
+feature sub attribute,
+    value string;
+status sub attribute,
+    value string;
+seq sub attribute,
+    value string;
+
+database_name sub attribute,
+    value string;
+temp_name sub attribute,
+    value string;
+mission_id sub attribute,
+    value string;
+mission_start sub attribute,
+    value datetime;
+mission_end sub attribute,
+    value datetime;
+agent_id sub attribute,
+    value string;
+current_role sub attribute,
+    value string;
+
+
+wp_id sub attribute,
+    value string;
+
+assigned_task sub attribute,
+    value string;
+
+obj_orientation sub attribute,
+    value string;
+obj_position sub attribute,
+    value string;
+agent_position sub attribute,
+    value string;
+agent_orientation sub attribute,
+    value string;
+
+orientation sub attribute,
+    value string;
+position sub attribute,
+    value string;
+
+captured_time sub attribute,
+    value datetime;
+received_time sub attribute,
+    value datetime;
+
+num_attempt sub attribute,
+    value string;
+
+sent_time sub attribute,
+    value datetime;

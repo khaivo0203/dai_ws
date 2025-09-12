@@ -1,0 +1,7 @@
+define
+	entity robot,
+		owns robot_name,
+	entity mission,
+		owns description,
+
+	

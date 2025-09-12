@@ -1,0 +1,140 @@
+define  
+  # Attributes
+  #attribute type, value string;
+  attribute name, value string;
+  attribute robot_id , value string;
+  attribute mission_id, value string;
+  attribute object_id, value string;
+  attribute room_id, value string;
+  attribute room_name, value string;
+  attribute discription, value string;
+  attribute priority value integer;
+  attribute size, value string;
+  attribute status, value string;
+  attribute confidence, value double;
+  attribute fire_status, value string;
+  attribute x_pos, value double;
+  attribute y_pos, value double;
+  attribute z_pos, value double;
+
+
+  # Base entity
+  entity robot,
+    owns name,
+    owns robot_id @key,
+    plays located_at:subject,
+    plays assigned_to:robot,
+    plays exchange:exchange_to;
+
+  entity mission,
+    owns mission_id @key,
+    owns discription,
+    plays exchange:info,
+    plays assigned_to:mission;
+
+  entity coordinates,
+    owns x_pos,
+    owns y_pos,
+    owns z_pos,
+    plays in_room:coordinate,
+    plays located_at:location;
+
+  entity room,
+    owns room_name,
+    owns room_id @key,
+    owns fire_status,
+    plays exchange:info,
+    plays in_room:room,
+    plays located_in:container;
+
+  # Object of interest entity
+  entity object,
+    #owns type,
+    owns object_id,
+    owns confidence,
+    plays located_at:subject,
+    plays exchange:info,
+	  plays located_in:subject;
+
+  # Subtypes of object
+  entity dog sub object,
+    owns size,
+    plays assign_priority:patient;
+
+  entity human sub object,
+    owns status,
+    plays assign_priority:patient;
+
+  entity cat sub object,
+    plays assign_priority:patient;
+
+  entity fire sub object,
+    owns fire_status;
+
+
+  # Relations
+  relation assign_priority,
+    owns priority,
+    relates patient;
+  relation assigned_to,
+    relates robot,
+    relates mission;
+  relation located_at,
+    relates subject,
+    relates location;
+  relation located_in,
+    relates subject,
+    relates container;
+  relation exchange,
+    relates exchange_to,
+    relates info;
+  relation in_room,
+    relates coordinate,
+    relates room;
+
+  # Functions
+  fun distance($coord1: coordinates, $coord2: coordinates) -> double:
+  match
+    $coord1 has x_pos $x1, has y_pos $y1, has z_pos $z1;
+    $coord2 has x_pos $x2, has y_pos $y2, has z_pos $z2;
+    let $dx = $x1 - $x2;
+    let $dy = $y1 - $y2;
+    let $dz = $z1 - $z2;
+    let $distance_sqrt = $dx * $dx + $dy * $dy + $dz * $dz;
+    let $distance = $distance_sqrt ^ 0.5;
+  return first $distance;
+
+
+  fun priority_score($object: object, $fire_coord:coordinates) -> double:
+  match
+    $loc_at isa located_at, links (subject: $obj, location: $obj_coord);
+    let $distance = distance($obj_coord, $fire_coord);
+
+    # Point-based priority assign
+
+    {
+      $object isa human;
+      let $base_priority = 100.0;
+      {$object has status "unconscious"; let $status_bonus = 50.0;} or 
+      {$object has status "conscious"; let $status_bonus = 30.0; };
+    } or
+
+    {
+      $object isa dog;
+      let $base_priority = 70.0;
+      {$object has size "large"; let $status_bonus = 20.0;} or
+      {$object has size "medium"; let $status_bonus = 10.0;} or
+      {$object has size "small"; let $status_bonus = 5.0;};
+    };
+    {
+      $distance < 1.0; 
+      let $distance_score = 50/1.0;
+    } or
+
+    {
+      $distance >= 1.0;
+      let $distance_score = 50/$distance;
+    };
+
+    let $total_score = $base_priority + $status_bonus + $distance_score;
+return first $total_score;  

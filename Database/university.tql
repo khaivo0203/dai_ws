@@ -1,0 +1,25 @@
+define
+
+attribute name, value string;
+attribute email, value string;
+attribute course_code, value string;
+
+entity person,
+  owns name,
+  owns email,
+  plays enrollment:student,
+  plays teaching:instructor;
+
+entity course,
+  owns name,
+  owns course_code,
+  plays enrollment:enrolled_course,
+  plays teaching:taught_course;
+
+relation enrollment, 
+  relates student,
+  relates enrolled_course;
+
+relation teaching,
+  relates instructor,
+  relates taught_course;
